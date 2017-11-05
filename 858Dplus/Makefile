@@ -1,3 +1,4 @@
+#SETTINGS
 OUTDIR=bin
 TARGET=858Dplus
 MCU=atmega328p
