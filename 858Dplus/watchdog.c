@@ -37,13 +37,13 @@ void watchdogTestCpuFreq(void)
 	watchdogOff(false);		// IF we got to here, F_CPU is OK.
 }
 
-bool watchdogCheck() {
+inline bool watchdogCheck() {
 	
 	return ((_mcusr & _BV(WDRF)) != 0 ? true : false);
 	
 }
 
-void watchdogReset() {
+inline void watchdogReset() {
 
         wdt_reset();
         //TODO: Replace by macro

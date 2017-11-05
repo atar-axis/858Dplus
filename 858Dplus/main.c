@@ -16,8 +16,9 @@
 
 /*
  * TODO:
- * - Remove _all_ the arduino specific code, it's not an arduino! 
+ * - Remove _all_ the arduino specific code, atmega is not an arduino! 
  * - use plain C for consistency and speed
+ * - linux kernel style guide
  * - merge rol_string´and display_string_running() into one single, nonblocking function
  * - avoid jumping around while cooling down (smoothing necessary)
  * - show the dot for temp_gain_correction (tgc) (2.40 instead of 240)
@@ -159,6 +160,8 @@ volatile uint8_t display_blink;
 
 int main(void)
 {
+        watchdogOff(true);
+        
 	init();			// make sure the Arduino-specific stuff is up and running (timers... see 'wiring.c')
 	setup_858D();
 
@@ -200,8 +203,8 @@ int main(void)
 #endif
 
 #ifdef DEBUG
-	Serial.begin(2400);
-	Serial.println("\nRESET");
+// 	Serial.begin(2400);
+// 	Serial.println("\nRESET");
 #endif
 
 
@@ -218,7 +221,7 @@ int main(void)
 		//
 		
 #ifdef DEBUG
-		int32_t start_time = micros();
+/*		int32_t start_time = micros();*/
 #endif
 		static int16_t temp_inst = 0;
 		static int32_t temp_accu = 0;
@@ -349,12 +352,12 @@ int main(void)
 		
 		// If the temperature is LOW		
 
-		if(temp_average <= FAN_OFF_TEMP){
+		if (temp_average <= FAN_OFF_TEMP) {
 
 			// First iteration
 			// Remember the time when the temperature became low the first time (only if it was hot before)
 			
-			if(was_hot_before && temp_low_firstEvent){
+			if (was_hot_before && temp_low_firstEvent) {
 				temp_low_firstTime = millis();
 				temp_low_firstEvent = 0;
 			}
@@ -364,8 +367,8 @@ int main(void)
 			// If it is >= FAN_OFF_TEMP_DELAY_MILLI, allow to shut down the FAN
 			// otherwise, cool a bit more down
 			
-			if(!temp_low_firstEvent){
-				if((millis() - temp_low_firstTime) >= FAN_OFF_TEMP_DELAY_MILLI)
+			if (!temp_low_firstEvent) {
+				if ((millis() - temp_low_firstTime) >= FAN_OFF_TEMP_DELAY_MILLI)
 					fan_off_allowed = 1;
 			}
 			
@@ -568,8 +571,8 @@ int main(void)
 #endif
 
 #ifdef DEBUG
-		int32_t stop_time = micros();
-		Serial.println(stop_time - start_time);
+// 		int32_t stop_time = micros();
+// 		Serial.println(stop_time - start_time);
 #endif
 	}
 
@@ -1529,7 +1532,7 @@ uint16_t adcRead( uint8_t channel )
 
 
 
-
+////////////////////////////////////////////////////////////////////////
 // TEMPORARY STUFF BORROWED BY ARDUINO
 // ---
 // TODO: Replace by own/library code which is not(!) arduino specific
