@@ -1,5 +1,6 @@
 #SETTINGS
 OUTDIR=bin
+
 TARGET=858Dplus
 MCU=atmega328p
 SOURCES=main.c watchdog.c
@@ -33,8 +34,8 @@ $(TARGET).elf: $(OBJECTS)
 $(OUTDIR)/%.o: %.c | $(OUTDIR)
 	avr-gcc $(CFLAGS) -mmcu=$(MCU) $< -o $@
 
-$(OBJDIR):
-	mkdir $(OBJDIR)
+$(OUTDIR):
+	mkdir $(OUTDIR)
 
 
 size:
