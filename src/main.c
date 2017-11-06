@@ -803,18 +803,16 @@ void fan_test(void)
 //////////////////////////////////////////////////////////////////////////
 // shows the actual firmware version on the display
 
+#define STR_EXPAND(tok) #tok
+#define STR(tok) STR_EXPAND(tok)
+
 void show_firmware_version(void)
 {
-    // TODO: do not use framebuffer directly
-	// framebuffer.digit[0] = FW_MINOR_V_B;	// dig0
-	// framebuffer.digit[1] = FW_MINOR_V_A;	// dig1
-	// framebuffer.digit[2] = FW_MAJOR_V;	// dig2
-	// framebuffer.dot[0] = 0;	// dig0.dot
-	// framebuffer.dot[1] = 0;	// dig1.dot
-	// framebuffer.dot[2] = 1;	// dig2.dot
-	// framebuffer.changed = 1;
-	// fb_update();
-	// _delay_ms(2000);
+    display_char(2, FW_MAJOR_V, 1);
+    display_char(1, FW_MINOR_V_A, 0);
+    display_char(0, FW_MINOR_V_B, 0);
+
+    _delay_ms(2000);
 }
 
 

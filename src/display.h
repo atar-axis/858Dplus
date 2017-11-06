@@ -2,6 +2,8 @@
 #define INC_DISPLAY_H
 
 #include "settings.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 #define DIG0_OFF ( PORTB &= ~_BV(PB0) )
 #define DIG1_OFF ( PORTB &= ~_BV(PB7) )

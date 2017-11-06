@@ -1,7 +1,5 @@
 #include "buttons.h"
 
-#include <stdint.h>
-
 #include <avr/interrupt.h>
 
 

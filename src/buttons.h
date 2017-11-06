@@ -1,6 +1,8 @@
 #ifndef INC_BUTTONS_H
 #define INC_BUTTONS_H
 
+#include <stdint.h>
+
 
 
 // KEY STATE

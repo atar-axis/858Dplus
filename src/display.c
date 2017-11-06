@@ -1,7 +1,6 @@
 #include "display.h"
 
 #include <stdbool.h>
-#include <stdint.h>
 
 #include <avr/interrupt.h>
 #include <util/delay.h>
