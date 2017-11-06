@@ -1,5 +1,5 @@
-#ifndef _858DPLUS_H
-#define _858DPLUS_H
+#ifndef MAIN_H
+#define MAIN_H
 
 #include "settings.h"
 
@@ -41,22 +41,8 @@ typedef struct CPARAM {
 	uint8_t *p_eep_addr_low;
 } CPARAM;
 
-typedef struct {
-	char digit[3];
-	bool dot[3];
-	bool changed:1;
-} framebuffer_t;
-
 void show_parameter_config(CPARAM * param, const char *string);
 void char_test(void);
-void clear_display(void);
-void clear_dot(void);
-void clear_eeprom_saved_dot(void);
-
-void display_char(uint8_t digit, uint8_t character, uint8_t dot);
-void display_number(int16_t number);
-void display_set_temp(int16_t number);
-void display_string(const char *string);
 
 void eep_load(CPARAM * param);
 void eep_save(CPARAM * param);
@@ -71,17 +57,7 @@ void setup_858D(void);
 void setup_timer1_ctc(void);
 void show_firmware_version(void);
 void show_config();
-void fb_update(void);
 
-uint8_t get_key_press(uint8_t key_mask);
-uint8_t get_key_rpt(uint8_t key_mask);
-uint8_t get_key_state(uint8_t key_mask);
-uint8_t get_key_short(uint8_t key_mask);
-uint8_t get_key_long(uint8_t key_mask);
-uint8_t get_key_long_r(uint8_t key_mask);
-uint8_t get_key_rpt_l(uint8_t key_mask);
-uint8_t get_key_common(uint8_t key_mask);
-uint8_t get_key_common_l(uint8_t key_mask);
 
 void adcInit (void);
 uint16_t adcRead (uint8_t);
@@ -93,16 +69,6 @@ void init();
 #define FAN_ON  ( PORTC &= ~_BV(PC3) )
 #define FAN_IS_ON ( !(PINC & _BV(PC3)) )
 #define FAN_IS_OFF ( PINC & _BV(PC3) )
-
-#define DIG0_OFF ( PORTB &= ~_BV(PB0) )
-#define DIG1_OFF ( PORTB &= ~_BV(PB7) )
-#define DIG2_OFF ( PORTB &= ~_BV(PB6) )
-
-#define DIG0_ON ( PORTB |= _BV(PB0) )
-#define DIG1_ON ( PORTB |= _BV(PB7) )
-#define DIG2_ON ( PORTB |= _BV(PB6) )
-
-#define SEGS_OFF ( PORTD = 0xFF )
 
 // THIS IS WHERE IT GETS DANGEROUS
 // YOU CAN START A FIRE AND DO A LOT OF HARM WITH
@@ -158,7 +124,7 @@ void init();
 #define FAN_SPEED_MIN_DEFAULT 130UL
 #define FAN_SPEED_MAX_DEFAULT 400UL
 
-// 
+//
 // Good starting values with BLDC FAN-speed mod
 //
 // #define FAN_SPEED_MIN_DEFAULT 450UL
@@ -186,4 +152,4 @@ void init();
 #define REPEAT_START    20	// after 20*20.48ms = 409.6ms
 #define REPEAT_NEXT     8	// every 6*20.48ms = 122.88ms
 
-#endif /* _858DPLUS_H */
+#endif /* MAIN_H */

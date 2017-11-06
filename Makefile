@@ -4,7 +4,7 @@ BINDIR=bin
 
 TARGET=858Dplus
 MCU=atmega328p
-SOURCES=main.c watchdog.c
+SOURCES=main.c watchdog.c buttons.c display.c
 
 PROGRAMMER=avrispmkii
 #auskommentieren für automatische Wahl
@@ -13,7 +13,7 @@ PORT=-Pusb
 
 #Ab hier nichts verändern
 OBJECTS=$(addprefix $(BINDIR)/, $(SOURCES:.c=.o))
-CFLAGS=-c -Os
+CFLAGS=-c -Os -Wall -g
 LDFLAGS=
 
 all: flash eeprom
@@ -56,4 +56,4 @@ clean_tmp:
 clean:
 	rm -rf $(BINDIR)/*.o
 	rm -rf $(BINDIR)/*.elf
-	rm -rf $(BINDIR)/*.hex 
+	rm -rf $(BINDIR)/*.hex
