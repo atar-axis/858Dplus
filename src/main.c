@@ -68,9 +68,7 @@
  *
  */
 
-#define FW_MAJOR_V 2
-#define FW_MINOR_V_A 0
-#define FW_MINOR_V_B 0
+
 
 /* PIN MAPPING:
  * ---
@@ -802,9 +800,6 @@ void fan_test(void)
 // SHOW FIRMWARE VERSION
 //////////////////////////////////////////////////////////////////////////
 // shows the actual firmware version on the display
-
-#define STR_EXPAND(tok) #tok
-#define STR(tok) STR_EXPAND(tok)
 
 void show_firmware_version(void)
 {

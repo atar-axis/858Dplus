@@ -1,13 +1,20 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define FW_MAJOR_V 2
+#define FW_MINOR_V_A 0
+#define FW_MINOR_V_B 1
+
+#define low(x)   ((x) & 0xFF)
+#define high(x)   (((x)>>8) & 0xFF)
+
 #include "settings.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#define low(x)   ((x) & 0xFF)
-#define high(x)   (((x)>>8) & 0xFF)
+
+
 
 /*
  * See the Docs folder for how to add a 1 Ohm current sense
