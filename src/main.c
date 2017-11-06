@@ -16,10 +16,10 @@
 
 /*
  * TODO:
- * - Remove _all_ the arduino specific code, atmega is not an arduino! 
+ * - Remove _all_ the arduino specific code, avr != arduino!
  * - use plain C for consistency and speed
  * - linux kernel style guide
- * - merge rol_string´and display_string_running() into one single, nonblocking function
+ * - merge rol_string and display_string_running() into one single, nonblocking function
  * - avoid jumping around while cooling down (smoothing necessary)
  * - show the dot for temp_gain_correction (tgc) (2.40 instead of 240)
  * - Leave menu by long pressing of both buttons
@@ -52,7 +52,7 @@
  * Date:	2015-02-01
  * PCB version: 858D V6.0
  * Date code:   20140415
- * 
+ *
  * Reported to work with (I did not test these myself):
  * ----------------------------------------------------
  *
@@ -81,7 +81,7 @@
  * #21: AREF <--- about 2.5V as analog reference for ADC
  * PB1: opto-triac driver !! THIS IS DANGEROUS TO USE !! (OK)
  *
- * PB0: 7-seg digit 0 [common Anode] (OK) 
+ * PB0: 7-seg digit 0 [common Anode] (OK)
  * PB7: 7-seg digit 1 [common Anode] (OK)
  * PB6: 7-seg digit 2 [common Anode] (OK)
  *
@@ -112,7 +112,7 @@
 
 // fb is the "raw" data which is directly displayed by the timer-ISR
 uint8_t fb[3] = { 0xFF, 0xFF, 0xFF };	// dig0, dig1, dig2
-	
+
 // framebuffer is a bit more structured, but needs and fb_update() to be stored in fb
 // right digit, middle digit, left digit, right dot, middle dot, left dot, change indicator
 framebuffer_t framebuffer = { {0x00, 0x00, 0x00}, {0, 0, 0}, 0 };
@@ -160,10 +160,9 @@ volatile uint8_t display_blink;
 
 int main(void)
 {
-        watchdogOff(true);
-        
-	init();			// make sure the Arduino-specific stuff is up and running (timers... see 'wiring.c')
-	setup_858D();
+    watchdogOff(true);
+    init();			// make sure the Arduino-specific stuff is up and running (timers... see 'wiring.c')
+    setup_858D();
 
 #ifdef DISPLAY_MCUSR
 	HEATER_OFF;
@@ -191,13 +190,13 @@ int main(void)
 #endif
 
 	show_firmware_version();
-	
+
 #ifdef USE_WATCHDOG
 	watchdogTestCpuFreq();
 #endif
 
 	fan_test();
-	
+
 #ifdef USE_WATCHDOG
 	watchdogOn();
 #endif
@@ -213,13 +212,13 @@ int main(void)
 	//////////////////////////////////////////////////////////////////////////
 
 	while (1) {
-		
+
 		//////////////////////////////////////////////////////////////////////////
 		// STATIC VARIABLES
 		//////////////////////////////////////////////////////////////////////////
 		// Remember: Static variables are initialized only once!
 		//
-		
+
 #ifdef DEBUG
 /*		int32_t start_time = micros();*/
 #endif
@@ -241,37 +240,37 @@ int main(void)
 		static int32_t temp_setpoint_saved_time = 0;
 
 		static uint32_t heater_start_time = 0;
-		
+
 		//static uint32_t temp_low_fanonly_firstTime = 0;
 		static uint32_t temp_low_firstTime = 0;
-				
+
 		//static bool temp_low_fanonly_firstEvent = 1;
 		static bool temp_low_firstEvent = 1;
-		
+
 		static bool fan_off_allowed = 0;
 		static bool was_hot_before = 0;
 
-		
+
 		//////////////////////////////////////////////////////////////////////////
 		// PID LOOP / HEATER CONTROL
 		//////////////////////////////////////////////////////////////////////////
-		
-		uint16_t adc_raw = adcRead(PC0);	// need raw value later, store it here and avoid 2nd ADC read		
-		temp_inst = (adc_raw / (temp_gain_corr.value / 100)) + temp_offset_corr.value;	// approx. temp in °C
+
+		uint16_t adc_raw = adcRead(PC0);	// need raw value later, store it here and avoid 2nd ADC read
+		temp_inst = (adc_raw / (temp_gain_corr.value / 100)) + temp_offset_corr.value;	// approx. temp in ï¿½C
 
 		if (temp_inst < 0) {
 			temp_inst = 0;
 		}
-		
+
 		// pid loop / heater handling
-		
+
 		// FAN-ONLY MODE
 		if (fan_only.value == 1 || REEDSW_CLOSED) {
-			
+
 			HEATER_OFF;
 			heater_start_time = millis();
 			clear_dot();
-		
+
 		// REGULAR/NORMAL MODE
 		} else if (REEDSW_OPEN
 					&& (temp_setpoint.value >= temp_setpoint.value_min)
@@ -314,16 +313,16 @@ int main(void)
 			}
 
 			heater_ctr++;
-			
+
 			if (heater_ctr == PWM_CYCLES) {
 				heater_ctr = 0;
 			}
-			
+
 		} else {
-			
+
 			HEATER_OFF;
 			clear_dot();
-			
+
 		}
 
 		//////////////////////////////////////////////////////////////////////////
@@ -344,77 +343,77 @@ int main(void)
 			temp_accu = 0;
 			temp_avg_ctr = 0;
 		}
-		
-		
+
+
 		//////////////////////////////////////////////////////////////////////////
 		// FAN SHUTDOWN DELAY
 		//////////////////////////////////////////////////////////////////////////
-		
-		// If the temperature is LOW		
+
+		// If the temperature is LOW
 
 		if (temp_average <= FAN_OFF_TEMP) {
 
 			// First iteration
 			// Remember the time when the temperature became low the first time (only if it was hot before)
-			
+
 			if (was_hot_before && temp_low_firstEvent) {
 				temp_low_firstTime = millis();
 				temp_low_firstEvent = 0;
 			}
-			
+
 			// All the other iterations:
 			// Calculate the time since the temperature is low
 			// If it is >= FAN_OFF_TEMP_DELAY_MILLI, allow to shut down the FAN
 			// otherwise, cool a bit more down
-			
+
 			if (!temp_low_firstEvent) {
 				if ((millis() - temp_low_firstTime) >= FAN_OFF_TEMP_DELAY_MILLI)
 					fan_off_allowed = 1;
 			}
-			
+
 		// If the temperature is HIGH
-		
+
 		} else {
-			
+
 			// reset variables
 			was_hot_before = 1;
 			temp_low_firstEvent = 1;
-			
+
 			fan_off_allowed = 0;
 		}
-		
-		
+
+
 		//////////////////////////////////////////////////////////////////////////
 		// FAN CRADLE HANDLING
 		//////////////////////////////////////////////////////////////////////////
 		// TODO: fan_off_allowed for fan_only_mode
 
 		if (temp_average >= FAN_ON_TEMP) {
-			
+
 			FAN_ON;
-			
+
 		} else if (REEDSW_CLOSED && fan_only.value == 1 && (temp_average <= FAN_OFF_TEMP_FANONLY)) {
-			
+
 			FAN_OFF;
-						
+
 		} else if (REEDSW_CLOSED && fan_only.value == 0 && (temp_average <= FAN_OFF_TEMP)) {
-			
+
 			if(fan_off_allowed)	FAN_OFF;
-			
+
 		} else if (REEDSW_OPEN) {
-			
+
 			FAN_ON;
-			
+
 		}
-		
-		
+
+
 		/////////////////////////////////
 		// MENU KEY HANDLING
 		/////////////////////////////////
 		// CHANGING THE TEMPERATURE
 		//
 		// TODO: Do not in-/decrease by 10, but increase the change rate - it should depend on how long you already pressed the button
-		
+
 		// - INCREASE BY 1
 		if (get_key_short(1 << KEY_UP)) {
 			button_input_time = millis();
@@ -422,7 +421,7 @@ int main(void)
 				temp_setpoint.value++;
 			}
 			temp_setpoint_saved = 0;
-			
+
 		// - DECREASE BY 1
 		} else if (get_key_short(1 << KEY_DOWN)) {
 			button_input_time = millis();
@@ -430,7 +429,7 @@ int main(void)
 				temp_setpoint.value--;
 			}
 			temp_setpoint_saved = 0;
-			
+
 		// - INCREASE BY 10
 		} else if (get_key_long_r(1 << KEY_UP) || get_key_rpt_l(1 << KEY_UP)) {
 			button_input_time = millis();
@@ -440,7 +439,7 @@ int main(void)
 				temp_setpoint.value = temp_setpoint.value_max;
 			}
 			temp_setpoint_saved = 0;
-			
+
 		// - DECREASE BY 10
 		} else if (get_key_long_r(1 << KEY_DOWN) || get_key_rpt_l(1 << KEY_DOWN)) {
 			button_input_time = millis();
@@ -452,18 +451,18 @@ int main(void)
 			}
 
 			temp_setpoint_saved = 0;
-			
+
 		// ENTER THE MENU
 		} else if (get_key_common_l(1 << KEY_UP | 1 << KEY_DOWN)) {
 			HEATER_OFF;	// security reasons, delay below!
-			
+
 			watchdogOff(false);
 			_delay_ms((uint16_t)(20.48 * (REPEAT_START - 3) + 1));
 
-			
-			// ENTER CONFIG MENU	
+
+			// ENTER CONFIG MENU
 			if (get_key_long_r(1 << KEY_UP | 1 << KEY_DOWN)) {
-				
+
 				show_config();
 
 			// FAN ONLY MODE
@@ -481,14 +480,14 @@ int main(void)
 			watchdogOn();
 #endif
 		}
-		
-		
+
+
 		//////////////////////////////////////////////////////////////////////////
 		// TEMPERATURE SECURITY
 		//////////////////////////////////////////////////////////////////////////
-		
+
 		if (temp_average >= MAX_TEMP_ERR) {
-			
+
 			// something might have gone terribly wrong
 			HEATER_OFF;
 			FAN_ON;
@@ -513,12 +512,12 @@ int main(void)
 				_delay_ms(1000);
 			}
 		}
-		
-		
+
+
 		//////////////////////////////////////////////////////////////////////////
 		// DISPLAY OUTPUT
 		//////////////////////////////////////////////////////////////////////////
-		
+
 		if ((millis() - button_input_time) < SHOW_SETPOINT_TIMEOUT) {
 			if (display_blink < 5) {
 				clear_display();
@@ -605,7 +604,7 @@ void setup_858D(void)
 #endif
 
 	setup_timer1_ctc();	// needed for background display refresh
-	
+
 	adcInit();
 
 	if (eeprom_read_byte(0) != 0x22) {
@@ -831,11 +830,11 @@ void display_number(int16_t number)
 void display_char(uint8_t digit, uint8_t character, uint8_t dot)
 {
 	uint8_t portout = 0xFF;
-	
+
 	// 8 Bit
 	// -> '0'-Bit: active
 	// -> '1'-Bit: not active
-	
+
 	//  0b0000_0000
 	//	  |||| |||'--- top
 	//    |||| ||'---- bottom-left
@@ -845,8 +844,8 @@ void display_char(uint8_t digit, uint8_t character, uint8_t dot)
 	//    ||'--------- bottom-right
 	//    |'---------- middle
 	//    '----------- top-right
-	
-	
+
+
 	switch (character) {
 	case 0:
 		// ~0b?1010_1111? = 0b0101_0000
@@ -939,13 +938,13 @@ void display_char(uint8_t digit, uint8_t character, uint8_t dot)
 		portout = (uint8_t) (~0x4E);	// 't'
 		break;
 	case 'U':
-		portout = (uint8_t) (~0x26);	// 'u'          
+		portout = (uint8_t) (~0x26);	// 'u'
 		break;
 	case 'V':
 		portout = (uint8_t) (~0x26);	// 'v'
 		break;
 	case '*':
-		portout = (uint8_t) (~0xC9);	// '°'
+		portout = (uint8_t) (~0xC9);	// 'ï¿½'
 		break;
 	case ' ':
 	case 255:
@@ -1003,7 +1002,7 @@ void display_string(const char *string)
   * It reads out and displays every character until a '\0' is reached.
   * CAUTION! Always be sure that your string is null-terminated
   * CAUTION! This functions is blocking...
-  * 
+  *
   * The standard delay is 500ms
   *
   * \param[in] *string     pointer to the c-string to display
@@ -1012,21 +1011,21 @@ void display_string(const char *string)
 void display_string_running(const char* string)
 {
 	// TODO: The text does not run at the moment, why?
-	
+
 	// empty string, return
 	if(string[0] == '\0')
 		return;
-		
+
 	// string isn't long enough for "running", hence display normally
 	if((string[1] == '\0') | (string[2] == '\0') | (string[3] == '\0'))
 		display_string(string);
-	
-	// if you get here, the string seems to be ok	
+
+	// if you get here, the string seems to be ok
 	for(uint8_t i = 0; string[i+2] != '\0'; i++){
 		display_string(&string[i]);
 		_delay_ms(500);
 	}
-	
+
 }
 
 
@@ -1039,14 +1038,14 @@ void display_string_running(const char* string)
  * to the left by 1
  */
 void rol_string(char* text){
-	
+
 	int len = strlen(text);
 	char tmp = text[0];
-	
+
 	for(int i = 0; i <= len-2; i++){
 		text[i] = text[i+1];
 	}
-	
+
 	text[len-1] = tmp;
 }
 
@@ -1063,8 +1062,8 @@ void fan_test(void)
 	char cradle_err[] = "CRADLE ";
 	char fanSpd_err[] = "FANSPEED ";
 	//char fanCur_err[] = "FANCUR ";
-	
-	
+
+
 	HEATER_OFF;
 
 	// if the wand is not in the cradle when powered up, go into a safe mode
@@ -1078,7 +1077,7 @@ void fan_test(void)
 
 	FAN_ON;
 	_delay_ms(3000);
-	
+
 #ifdef CURRENT_SENSE_MOD
 	uint16_t fan_current = adcRead(PC2);
 
@@ -1137,10 +1136,10 @@ void setup_timer1_ctc(void)
 	// Timer1 (16bit) Settings:
 	// prescaler (frequency divider) values:   CS12    CS11   CS10
 	//                                           0       0      0    stopped
-	//                                           0       0      1      /1  
-	//                                           0       1      0      /8  
+	//                                           0       0      1      /1
+	//                                           0       1      0      /8
 	//                                           0       1      1      /64
-	//                                           1       0      0      /256 
+	//                                           1       0      0      /256
 	//                                           1       0      1      /1024
 	//                                           1       1      0      external clock on T1 pin, falling edge
 	//                                           1       1      1      external clock on T1 pin, rising edge
@@ -1162,7 +1161,7 @@ void setup_timer1_ctc(void)
 
 	/* set top value for TCNT1 */
 	OCR1A = 640;		// key debouncing every 20.48ms
-	OCR1B = 8;		// new segment every 256µs, complete display update every 6ms <=> 160Hz
+	OCR1B = 8;		// new segment every 256ï¿½s, complete display update every 6ms <=> 160Hz
 
 	/* enable COMPA and COMPB isr */
 	TIMSK1 |= _BV(OCIE1A) | _BV(OCIE1B);
@@ -1270,24 +1269,24 @@ ISR(TIMER1_COMPA_vect)
 	uint8_t i;
 
 	i = key_state ^ ~KEY_PIN;	// key changed ?
-	
+
 	ct0 = ~(ct0 & i);	// reset or count ct0
 	ct1 = ct0 ^ (ct1 & i);	// reset or count ct1
-	
+
 	i &= ct0 & ct1;		// count until roll over ?
-	
+
 	key_state ^= i;		// then toggle debounced state
-	
+
 	key_press |= key_state & i;	// 0->1: key press detect
 
 
 	// REPEAT_MASK: vector, which inputs are checked for repeated input?
 	// REPEAT_START: how many time to delay at first?
 	// REPEAT_NEXT:  how many time should pass until we recognice a "long press"
-	
+
 	if ((key_state & REPEAT_MASK) == 0)	// check repeat function
 		rpt = REPEAT_START;	// start delay
-		
+
 	if (--rpt == 0) {
 		rpt = REPEAT_NEXT;	// repeat delay
 		key_rpt |= key_state & REPEAT_MASK;
@@ -1303,7 +1302,7 @@ ISR(TIMER1_COMPA_vect)
 //////////////////////////////////////////////////////////////////////////
 
 // check if a key has been pressed. Each pressed key is reported only once.
-// 
+//
 
 uint8_t get_key_press(uint8_t key_mask)
 {
@@ -1404,11 +1403,11 @@ void fb_update()
 //////////////////////////////////////////////////////////////////////////
 
 void show_config(){
-				
+
 	// We enter the first parameter config menu.
 	// That function is blocking, it repeatedly loops to react to user inputs like "value up" or "value down".
 	// We leave that menu-entry by pressing both buttons again (and automatically enter the next menu-entry)
-	
+
 	show_parameter_config(&p_gain, p_gain.text);
 	show_parameter_config(&i_gain, i_gain.text);
 	show_parameter_config(&d_gain, d_gain.text);
@@ -1437,7 +1436,7 @@ void show_config(){
 	// 				} while(!get_key_long_r(1 << KEY_UP | 1 << KEY_DOWN))
 	//
 	// 			}
-	
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1455,31 +1454,31 @@ void show_parameter_config(CPARAM * param, const char *string)
 	uint8_t loop = 1;
 
 	while (loop == 1) {
-		
+
 		// INCREASE BY 1
 		if (get_key_short(1 << KEY_UP)) {
 			if (param->value < param->value_max) {
 				param->value++;
 			}
-			
+
 			// DECREASE BY 1
 			} else if (get_key_short(1 << KEY_DOWN)) {
 			if (param->value > param->value_min) {
 				param->value--;
 			}
-			
+
 			// INCREASE BY 10
 			} else if (get_key_long_r(1 << KEY_UP) || get_key_rpt_l(1 << KEY_UP)) {
 			if (param->value < param->value_max - 10) {
 				param->value += 10;
 			}
-			
+
 			// DECREASE BY 10
 			} else if (get_key_long_r(1 << KEY_DOWN) || get_key_rpt_l(1 << KEY_DOWN)) {
 			if (param->value > param->value_min + 10) {
 				param->value -= 10;
 			}
-			
+
 			// LEAVE THE MENU-ENTRY (next one is entered in the main loop)
 			} else if (get_key_common(1 << KEY_UP | 1 << KEY_DOWN)) {
 			loop = 0;
@@ -1498,14 +1497,14 @@ void adcInit(void)
 {
         // External reference-voltage (2.5V)
         ADMUX = (0<<REFS0) | (0<<REFS1);
-  
+
         // Prescalar, divides the CPU clock frequency
         // A value between 50 and 200kHz is necessary
         // 20 MHz / 200 kHz = 100
         // 20 MHz /  50 kHz = 400
         // Lowest (in this case the only) prescalar within the range is 128, which is set by ADPSx '111'
         ADCSRA = (1<<ADPS2) | (1<<ADPS1) | (1<<ADPS0);
-  
+
         // activate ADC
         ADCSRA |= (1<<ADEN);
 
@@ -1518,7 +1517,7 @@ void adcInit(void)
 
 uint16_t adcRead( uint8_t channel )
 {
-        // Kanal waehlen, ohne andere Bits zu beeinflußen
+        // Kanal waehlen, ohne andere Bits zu beeinfluï¿½en
         ADMUX = (ADMUX & ~(0x1F)) | (channel & 0x1F);
 
         ADCSRA |= (1<<ADSC);            // Start a single conversion
