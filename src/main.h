@@ -31,13 +31,6 @@
  *
  */
 
-//#define DEBUG
-//#define CURRENT_SENSE_MOD
-
-#define USE_WATCHDOG
-//#define DISPLAY_MCUSR
-//#define WATCHDOG_TEST
-
 typedef struct CPARAM {
 	char* text;
 	int16_t value_min;

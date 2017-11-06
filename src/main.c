@@ -10,9 +10,16 @@
 
 #include "debugprint.h"
 #include "watchdog.h"
-#include "debugprint.h"
 #include "buttons.h"
 #include "display.h"
+
+/*
+ * 2017    - Florian Dollinger
+ * 2015/16 - Robert Spitzenpfeil
+ * 2015    - Moritz Augsburger
+ *
+ * License: GNU GPL v2
+ */
 
 /*
  * TODO:
@@ -26,47 +33,7 @@
  * - delay big steps a bit more
  */
 
-/*
- * This is a custom firmware for my 'Youyue 858D+' hot-air soldering station.
- * It may or may not be useful to you, always double check if you use it.
- *
- * V1.47
- *
- * 2017    - Florian Dollinger
- * 2015/16 - Robert Spitzenpfeil
- * 2015    - Moritz Augsburger
- *
- * License: GNU GPL v2
- *
- *
- * Developed for / tested on by Robert Spitzenpfeil:
- * -------------------------------------------------
- *
- * Date:	2015-02-01
- * PCB version: 858D V6.0
- * Date code:   20140415
- *
- * Developed for / tested on by Moritz Augsburger:
- * -----------------------------------------------
- *
- * Date:	2015-02-01
- * PCB version: 858D V6.0
- * Date code:   20140415
- *
- * Reported to work with (I did not test these myself):
- * ----------------------------------------------------
- *
- * PCB version: 858D V4.3
- * Date code:   20130529
- * HW mods:     not tested!
- *
- * ---
- *
- * PCB version: 858D V4.10
- * Date code:	20140112
- * HW mods:	not tested!
- *
- */
+
 
 
 
@@ -130,6 +97,7 @@ CPARAM fan_speed_min = {"FSL", 120, 180, FAN_SPEED_MIN_DEFAULT, FAN_SPEED_MIN_DE
 CPARAM fan_speed_max = {"FSH", 300, 400, FAN_SPEED_MAX_DEFAULT, FAN_SPEED_MAX_DEFAULT, (uint8_t*) 20, (uint8_t*) 21 };
 #endif
 
+
 volatile uint8_t display_blink;
 
 ///////////////////////////////////
@@ -151,38 +119,26 @@ int main(void)
 	_delay_ms(1000);
 #endif
 
-#ifdef USE_WATCHDOG
 
-	if(watchdogCheck()){
-		HEATER_OFF;
-		FAN_ON;
-		while (1) {
-			display_string("RST");
-			_delay_ms(1000);
-			clear_display();
-			_delay_ms(1000);
-		}
-	}
+    if(watchdogCheck()){
+        HEATER_OFF;
+        FAN_ON;
+        while (1) {
+            display_string("RST");
+            _delay_ms(1000);
+            clear_display();
+            _delay_ms(1000);
+        }
+    }
 
-
-#endif
 
 	show_firmware_version();
 
-#ifdef USE_WATCHDOG
 	watchdogTestCpuFreq();
-#endif
 
 	fan_test();
 
-#ifdef USE_WATCHDOG
 	watchdogOn();
-#endif
-
-#ifdef DEBUG
-// 	Serial.begin(2400);
-// 	Serial.println("\nRESET");
-#endif
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -197,9 +153,6 @@ int main(void)
 		// Remember: Static variables are initialized only once!
 		//
 
-#ifdef DEBUG
-/*		int32_t start_time = micros();*/
-#endif
 		static int16_t temp_inst = 0;
 		static int32_t temp_accu = 0;
 		static int16_t temp_average = 0;
@@ -454,9 +407,9 @@ int main(void)
 				}
 				display_blink = 0;	// make sure we start displaying "FAN" or set temp
 			}
-#ifdef USE_WATCHDOG
+
 			watchdogOn();
-#endif
+
 		}
 
 
@@ -543,14 +496,8 @@ int main(void)
 		}
 #endif
 
-#ifdef USE_WATCHDOG
 		watchdogReset();
-#endif
 
-#ifdef DEBUG
-// 		int32_t stop_time = micros();
-// 		Serial.println(stop_time - start_time);
-#endif
 	}
 
 }
@@ -909,8 +856,6 @@ ISR(TIMER1_COMPA_vect)
 	if (++display_blink > 50)
 		display_blink = 0;
 }
-
-
 
 
 //////////////////////////////////////////////////////////////////////////
