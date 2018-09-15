@@ -5,3 +5,12 @@ it is based on madworms youyue-858D-plus repo, which is located here: https://gi
 
 The main difference is, that this variant is pure C without all those Arduino specific things.
 
+## Compilation
+
+To compile the firmware on linux, you need at least  
+`sudo apt-get install avr-libc gcc-avr make build-essential`
+
+## Upload
+
+Upload using e.g. `avr-dude`, fuses are described here:
+https://www.eevblog.com/forum/reviews/youyue-858d-some-reverse-engineering-custom-firmware/msg1320798/#msg1320798
