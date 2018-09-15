@@ -12,5 +12,5 @@ To compile the firmware on linux, you need at least
 
 ## Upload
 
-Upload using e.g. `avr-dude`, fuses are described here:
+Upload using e.g. `avr-dude`, fuses are described here:  
 https://www.eevblog.com/forum/reviews/youyue-858d-some-reverse-engineering-custom-firmware/msg1320798/#msg1320798
