@@ -10,6 +10,8 @@ The main difference is, that this variant is pure C without all those Arduino sp
 To compile the firmware on linux, you need at least  
 `sudo apt-get install avr-libc gcc-avr make build-essential`
 
+All you need to do is running `make` in the directory where the Makefile is.
+
 ## Upload
 
 Upload using e.g. `avr-dude`, fuses are described here:  
